@@ -1,7 +1,7 @@
 config {
-  type: "view",
+  type: "table",
   schema: "staging",
-  description: "View to fetch Legacy Customer Data"
+  description: "Table to fetch Legacy Customer Data"
 }
 
 SELECT 

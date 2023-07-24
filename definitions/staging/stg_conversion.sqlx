@@ -1,7 +1,7 @@
 config {
-  type: "view",
+  type: "table",
   schema: "staging",
-  description: "View to fetch UNIT of Measure Conversion Factors"
+  description: "Table to fetch UNIT of Measure Conversion Factors"
 }
 
 SELECT 

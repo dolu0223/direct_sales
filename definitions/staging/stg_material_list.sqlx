@@ -1,7 +1,7 @@
 config {
-  type: "view",
+  type: "table",
   schema: "staging",
-  description: "View to fetch Material List",
+  description: "Table to fetch Material List",
    columns: {
     MATERIAL_NUMBER: "material number",
     BUSINESS_GROUP_NAME: "business group name",

@@ -1,7 +1,7 @@
 config {
-  type: "view",
+  type: "table",
   schema: "staging",
-  description: "View for Shipped Quantity"
+  description: "Table for Shipped Quantity"
 }
 
 SELECT DL.ref_doc_nbr AS REFERENCE_DOCUMENT_NUMBER

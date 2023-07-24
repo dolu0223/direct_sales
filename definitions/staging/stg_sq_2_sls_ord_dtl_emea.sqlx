@@ -1,7 +1,7 @@
 config {
-  type: "view",
+  type: "table",
   schema: "staging",
-  description: "View for SQ2_SLS_ORD_DTL_EMEA"
+  description: "Table for SQ2_SLS_ORD_DTL_EMEA"
 }
 
 SELECT 
