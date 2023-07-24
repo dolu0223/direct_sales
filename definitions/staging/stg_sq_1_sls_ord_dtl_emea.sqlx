@@ -1,0 +1,21 @@
+config {
+  type: "view",
+  schema: "staging",
+  description: "View for SQ (Subquery-1) for SLS_ORD_DTL_EMEA"
+}
+
+SELECT 
+  sap_src_sys_cd as SOURCE_SYSTEM_NAME,
+  -- CLIENT_NUMBER --(GAP)
+	sls_ord_nbr as SALES_ORDER_NUMBER,
+	cust_purch_ord_nbr as PURCHASE_ORDER_NUMBER,
+	cust_purch_ord_dt as PURCHASE_ORDER_DATE,
+	crncy_conv_prc_dt as PRICING_DATE,
+	cust_ref_cd as CUSTOMER_ORDER_REFERENCE_CODE,
+	pmnt_term_cd as PAYMENT_TERMS_CODE,
+	sls_dist_cd as SALES_DISTRICT_CODE,
+	cust_grp_cd as CUSTOMER_GROUP_CODE,
+	cust_purch_ord_typ_cd as PURCHASE_ORDER_TYPE_CODE,
+	cust_prc_grp_cd as PRICE_GROUP_CODE,
+	sls_ord_line_nbr as SALES_ORDER_ITEM_NUMBER
+FROM  ${ref('sls_ord_line_dtl')}

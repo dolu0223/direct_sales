@@ -1,0 +1,26 @@
+config {
+  type: "view",
+  schema: "staging",
+  description: "View for Sales Order Number, Sales Order Line Number amd Material Number for OOQ"
+}
+
+SELECT
+    RQMT.sls_ord_nbr AS SALES_ORDER_NUMBER,
+    RQMT.mtrl_nbr AS MATERIAL_NUMBER,
+    SUM(
+      CASE WHEN RQMT.sku_uom_cd <> CONV.BASE_UNIT_OF_MEASURE_CODE
+        THEN RQMT.open_qty * CONV.TO_BASE_UNIT_OF_MEASURE_CONVERSION_FACTOR
+        ELSE RQMT.open_qty
+      END
+    ) AS OPEN_ORDER_QUANTITY_LOCAL
+  FROM
+    ${ref('sls_ord_rqmt')} RQMT
+  LEFT JOIN
+    ${ref('stg_conversion')} CONV
+    ON RQMT.mtrl_nbr = CONV.MATERIAL_NUMBER
+    AND RQMT.sku_uom_cd = CONV.ALTERNATE_UNIT_OF_MEASURE_CODE
+  -- WHERE
+    -- (RQMT.sls_ord_nbr, RQMT.sls_ord_ln_nbr, RQMT.mtrl_nbr) IN (SQ_CTE_OOQ)
+  GROUP BY
+    RQMT.sls_ord_nbr,
+    RQMT.mtrl_nbr

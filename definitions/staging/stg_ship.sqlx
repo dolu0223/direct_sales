@@ -1,0 +1,32 @@
+config {
+  type: "view",
+  schema: "staging",
+  description: "View for Shipped Quantity"
+}
+
+SELECT DL.ref_doc_nbr AS REFERENCE_DOCUMENT_NUMBER
+  , DL.mtrl_nbr AS MATERIAL_NUMBER
+  , SUM(
+      CASE WHEN DL.sale_uom_cd <> CONV.BASE_UNIT_OF_MEASURE_CODE
+        THEN DL.act_sls_units_dlvry_qty * CONV.TO_BASE_UNIT_OF_MEASURE_CONVERSION_FACTOR
+      ELSE DL.act_sls_units_dlvry_qty
+      END
+    ) AS SHIPPED_QUANTITY_LOCAL --LFIMG --2/25/2021
+  FROM ${ref('dlvry_line')} DL
+  LEFT JOIN ${ref('stg_conversion')} CONV
+  ON DL.mtrl_nbr = CONV.MATERIAL_NUMBER
+    AND DL.sale_uom_cd = CONV.ALTERNATE_UNIT_OF_MEASURE_CODE
+  WHERE (DL.ref_doc_nbr, DL.ref_doc_line_nbr, DL.mtrl_nbr) IN (
+  SELECT (ORDER_NUMBER
+    , CAST(ORDER_ITEM_NUMBER AS NUMERIC)
+    , MATERIAL_NUMBER)
+    FROM ${ref('stg_sls_ord_dtl_emea')}
+    WHERE SALES_DISTRICT_CODE = 'AG-GB'
+      AND	SALES_ORGANIZATION_CODE = 'GB01'
+      AND REJECTION_REASON_CODE = ''
+      AND MATERIAL_GROUP_CODE NOT IN ('VRP01')
+      AND DOCUMENT_TYPE_CODE IN ('ZOR1','ZU01','ZFD1','ZRE1','ZRV1','ZCQ1','ZCV1','ZDQ1','ZDV1','ZKB1','ZKE1','ZKR1','ZKA1','ZCA1','ZOS1')
+    AND DIVISION_CODE = '15'
+  )
+  GROUP BY DL.ref_doc_nbr
+  , DL.mtrl_nbr

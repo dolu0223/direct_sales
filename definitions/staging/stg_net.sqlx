@@ -1,0 +1,41 @@
+config {
+  type: "view",
+  schema: "staging",
+  description: "View for fetch Billing Data and derive Net  Sales Quantities"
+}
+
+SELECT
+  BH.sold_to_cust_nbr AS OPERATIONAL_ACCOUNT_IDENTIFIER_1,
+  BL.mtrl_nbr AS MATERIAL_NUMBER,
+  BL.sls_ord_nbr AS SALES_ORDER_NUMBER,
+  SUM(
+    CASE WHEN BL.sls_unit_cd <> CONV.BASE_UNIT_OF_MEASURE_CODE
+      THEN BL.act_invc_qty * CONV.TO_BASE_UNIT_OF_MEASURE_CONVERSION_FACTOR
+    ELSE BL.act_invc_qty
+    END
+    *
+    CASE WHEN BH.sls_doc_ctgy_cd IN ('6','N','O')
+      THEN -1
+    ELSE 1
+    END
+  ) AS NET_SALES_QUANTITY_LOCAL
+FROM
+  ${ref('billng_hdr')} AS BH
+INNER JOIN ${ref('billing_line')} AS BL
+  ON BH.billng_doc_nbr = BL.billng_doc_nbr
+  -- AND BH.CLIENT_NUMBER = BL.CLIENT_NUMBER
+  AND BH.sap_src_sys_cd = BL.sap_src_sys_cd
+LEFT JOIN ${ref('stg_sq_1')} AS CUST
+  ON BH.sold_to_cust_nbr = CUST.CUSTOMER_NUMBER
+  AND BL.div_cd = CUST.DIVISION_CODE
+  AND BH.sls_org_cd = CUST.SALES_ORGANIZATION_CODE
+LEFT JOIN ${ref('stg_conversion')} CONV
+  ON BL.mtrl_nbr = CONV.MATERIAL_NUMBER
+  AND BL.sls_unit_cd = CONV.ALTERNATE_UNIT_OF_MEASURE_CODE
+WHERE
+  BH.distr_chnl_cd NOT IN ('38', '50')
+  AND BL.div_cd = '15'
+  AND BH.cncld_billng_doc_cd = 'N'
+  -- AND (BL.sls_ord_nbr,BL.sls_ord_line_nbr,BL.mtrl_nbr) IN (SQ_CTE_NET)
+GROUP BY 
+  BH.sold_to_cust_nbr, BL.mtrl_nbr, BL.sls_ord_nbr

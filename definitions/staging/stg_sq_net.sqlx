@@ -1,0 +1,18 @@
+config {
+  type: "view",
+  schema: "staging",
+  description: "View for Net Sales Quantity, Total Order Quantity, Return Quantity"
+}
+
+SELECT
+  ORDER_NUMBER,
+  ORDER_ITEM_NUMBER,
+  MATERIAL_NUMBER
+FROM
+   ${ref('stg_sls_ord_dtl_emea')}
+WHERE
+  SALES_DISTRICT_CODE = 'AG-GB'
+  AND SALES_ORGANIZATION_CODE = 'GB01'
+  AND REJECTION_REASON_CODE = ''
+  AND MATERIAL_GROUP_CODE NOT IN ('VRP01')
+  AND DOCUMENT_TYPE_CODE IN ('ZOR1', 'ZU01', 'ZFD1', 'ZRE1', 'ZRV1', 'ZCQ1', 'ZCV1', 'ZDQ1', 'ZDV1', 'ZKB1', 'ZKE1', 'ZKR1', 'ZKA1', 'ZCA1', 'ZOS1')

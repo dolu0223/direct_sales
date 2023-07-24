@@ -1,0 +1,7 @@
+config {
+  type: "declaration",
+  database: "bcs-customer360-dev",
+  schema: "staging_eu_west1",
+  name: "core_cust_sales_data",
+  description: "raw core_cust_sales_data table"
+}

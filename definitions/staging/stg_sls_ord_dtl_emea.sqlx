@@ -1,0 +1,48 @@
+config {
+  type: "view",
+  schema: "staging",
+  description: "View for SLS_ORD_DTL_EMEA"
+}
+
+SELECT
+    SOH.sls_ord_nbr as ORDER_NUMBER,
+    SOL.sls_ord_line_nbr as ORDER_ITEM_NUMBER,
+    SOL.mtrl_nbr as MATERIAL_NUMBER,
+    SOH.doc_dt as DOCUMENT_DATE,
+    SOL.base_uom_cd as BASE_UNIT_OF_MEASURE_CODE,
+    SOH.sls_doc_typ_cd as DOCUMENT_TYPE_CODE,
+    SOH.sls_and_distr_doc_ctgry_cd as DOCUMENT_CATEGORY_CODE,
+    CASE
+        WHEN SOH.sls_and_distr_doc_ctgry_cd IN ('H', 'K') THEN (SOL.base_unit_cum_cnfrmd_qty * -1) --(SOL.BASE_UNIT_CUMMULATIVE_CONFIRMED_QUANTITY * -1)
+        ELSE SOL.base_unit_cum_cnfrmd_qty --SOL.BASE_UNIT_CUMMULATIVE_CONFIRMED_QUANTITY
+    END AS BASE_UNIT_CUMMULATIVE_CONFIRMED_QUANTITY,
+    CASE
+        WHEN SOH.sls_and_distr_doc_ctgry_cd IN ('H', 'K') THEN (SOL.sls_unit_tgt_qty * -1) --(SOL.ORDER_ITEM_QUANTITY * -1)
+        ELSE SOL.sls_unit_tgt_qty --SOL.ORDER_ITEM_QUANTITY
+    END AS ORDER_ITEM_QUANTITY,
+    COALESCE(
+        SLS_ORD_LINE_DTL1.SALES_DISTRICT_CODE,
+        SLS_ORD_LINE_DTL2.SALES_DISTRICT_CODE
+    ) AS SALES_DISTRICT_CODE,
+    SOH.sls_org_cd as SALES_ORGANIZATION_CODE,
+    SOH.distr_chnl_cd as DISTRIBUTION_CHANNEL_CODE,
+    SOL.div_cd as DIVISION_CODE,
+    SOL.rjctn_anlys_rsn_cd as REJECTION_REASON_CODE,
+    SOL.sls_unit_cd as SALES_UNIT_OF_MEASURE_CODE,
+    SOL.mtrl_grp_cd as MATERIAL_GROUP_CODE,
+    SOH.ctrlng_area_cd as CONTROLLING_AREA_CODE,
+    -- SOH.SOLD_TO_COUNTRY_CODE --(GAP)
+    SOH.sls_grp_cd as SALES_GROUP_CODE,
+    -- SOH.LEGACY_CUSTOMER_NUMBER --(GAP)
+FROM
+    ${ref('sls_ord_line')} SOL --""CORE.SCRIPT::DV_SALES_ORDER_LINE_P08"" SOL
+    INNER JOIN ${ref('sls_ord_hdr')} SOH --""CORE.SCRIPT::DV_SALES_ORDER_HEADER_DATA_P08"" SOH
+    ON SOL.sls_ord_nbr = SOH.sls_ord_nbr
+    AND SOH.ctrlng_area_cd = '3000'
+    LEFT JOIN ${ref('stg_sq_1_sls_ord_dtl_emea')} AS SLS_ORD_LINE_DTL1 ON SOL.sls_ord_line_nbr = SLS_ORD_LINE_DTL1.SALES_ORDER_ITEM_NUMBER
+    AND SOH.sls_ord_nbr = SLS_ORD_LINE_DTL1.SALES_ORDER_NUMBER
+    INNER JOIN ${ref('stg_sq_2_sls_ord_dtl_emea')} AS SLS_ORD_LINE_DTL2 ON SOL.sls_ord_nbr = SLS_ORD_LINE_DTL2.SALES_ORDER_NUMBER
+WHERE
+    SOL.sls_ord_line_nbr = '000000' -- returns nothing
+    AND EXTRACT(YEAR FROM SOH.doc_dt) <= EXTRACT(YEAR FROM CURRENT_TIMESTAMP)
+    AND EXTRACT(YEAR FROM SOH.doc_dt) >= EXTRACT(YEAR FROM CURRENT_TIMESTAMP)-8

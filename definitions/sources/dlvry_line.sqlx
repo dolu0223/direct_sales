@@ -1,0 +1,7 @@
+config {
+  type: "declaration",
+  database: "bcs-customer360-dev",
+  schema: "staging_eu_west1",
+  name: "dlvry_line",
+  description: "raw dlvry_line table"
+}

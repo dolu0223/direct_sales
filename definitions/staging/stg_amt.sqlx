@@ -1,0 +1,69 @@
+config {
+  type: "view",
+  schema: "staging",
+  description: "View for fetch Billing Data and derive Net/Gross Sales Amounts"
+}
+
+SELECT DISTINCT
+  -- LEGACY_CUST.LEGACY_CUSTOMER_NUMBER AS OPERATIONAL_ACCOUNT_IDENTIFIER_1,
+  CASE WHEN CUST.ACCOUNT_GROUP_CODE = '0001' AND CUST.DISTRIBUTION_CHANNEL_CODE = '00' AND CUST.DIVISION_CODE = '15'
+    THEN CASE WHEN CUST.SALES_ORGANIZATION_CODE = 'GB01' AND CUST.CUSTOMER_GROUP_CODE = 'WR'
+        THEN 'DISTRIBUTOR'
+       ELSE ' '
+       END
+    ELSE ' '
+  END AS OPERATIONAL_ACCOUNT_IDENTIFIER_1_CLASSIFICATION_CODE,
+  BL.sls_grp_cd AS POSITION_LEVEL_1_CODE,
+  BL.mtrl_nbr AS MATERIAL_NUMBER,
+  BH.sls_doc_crncy_cd AS LOCAL_CURRENCY_CODE,
+  BL.sls_ord_nbr AS SALES_ORDER_NUMBER,
+  BL.div_cd AS DIVISION_CODE,
+  BH.sls_org_cd AS SALES_ORGANIZATION_CODE,
+  BL.sls_district_cd AS SALES_DISTRICT_CODE,
+  MIN(BH.billng_dt) AS INVOICE_DATE,
+  SUM(
+    CASE WHEN BH.sls_doc_ctgy_cd IN ('6','N','O')
+      THEN (BL.net_val * -1)
+      ELSE BL.net_val
+    END
+  ) AS NET_SALES_AMOUNT_LOCAL,
+  SUM(
+    CASE WHEN BH.sls_doc_ctgy_cd IN ('6','N','O')
+      THEN (BL.subtot_1_val * -1)
+      ELSE BL.subtot_1_val
+    END
+  ) AS GROSS_SALES_AMOUNT_LOCAL
+FROM
+  ${ref('billng_hdr')} AS BH
+  INNER JOIN ${ref('billing_line')} AS BL
+    ON BH.billng_doc_nbr = BL.billng_doc_nbr
+      -- AND BH.CLIENT_NUMBER = BL.CLIENT_NUMBER
+      AND BH.sap_src_sys_cd = BL.sap_src_sys_cd
+INNER JOIN ${ref('stg_legacy_customer')} LEGACY_CUST
+  ON BH.billng_doc_nbr = LEGACY_CUST.BILLING_DOCUMENT_NUMBER
+LEFT JOIN ${ref('stg_sq_1')} AS CUST
+  ON BH.sold_to_cust_nbr = CUST.CUSTOMER_NUMBER
+    AND BL.div_cd = CUST.DIVISION_CODE
+    AND BH.sls_org_cd = CUST.SALES_ORGANIZATION_CODE
+WHERE
+  BH.distr_chnl_cd NOT IN ('38','50')
+  AND BL.div_cd = '15'
+  AND BH.cncld_billng_doc_cd = 'N'
+  AND BH.billng_type_cd NOT IN ('S1','S2')
+  -- AND (BL.sls_ord_nbr, BL.sls_ord_line_nbr, BL.mtrl_nbr) IN (SQ_CTE_AMT)
+GROUP BY
+  -- LEGACY_CUST.LEGACY_CUSTOMER_NUMBER,
+  BL.mtrl_nbr,
+  BH.sls_doc_crncy_cd,
+  BL.sls_ord_nbr,
+  CASE WHEN CUST.ACCOUNT_GROUP_CODE = '0001' AND CUST.DISTRIBUTION_CHANNEL_CODE = '00' AND CUST.DIVISION_CODE = '15'
+    THEN CASE WHEN CUST.SALES_ORGANIZATION_CODE = 'GB01' AND CUST.CUSTOMER_GROUP_CODE = 'WR'
+        THEN 'DISTRIBUTOR'
+       ELSE ' '
+       END
+    ELSE ' '
+  END,
+  BL.sls_grp_cd,
+  BL.div_cd,
+  BH.sls_org_cd,
+  BL.sls_district_cd

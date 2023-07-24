@@ -1,0 +1,19 @@
+config {
+  type: "view",
+  schema: "staging",
+  description: "View for use in multiple views"
+}
+
+SELECT 
+  CUST.cust_nbr AS CUSTOMER_NUMBER,
+  CUST.accnt_grp_cd AS ACCOUNT_GROUP_CODE,
+  SLS.distr_chnl_cd AS DISTRIBUTION_CHANNEL_CODE,
+  SLS.div_cd AS DIVISION_CODE,
+  SLS.sls_org_cd AS SALES_ORGANIZATION_CODE,
+  SLS.cust_grp_cd AS CUSTOMER_GROUP_CODE,
+FROM
+  ${ref('core_cust')} CUST
+INNER JOIN 
+  ${ref('core_cust_sales_data')} SLS
+ON 
+  CUST.cust_nbr = SLS.cust_nbr

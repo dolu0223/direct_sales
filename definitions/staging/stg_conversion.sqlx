@@ -1,0 +1,19 @@
+config {
+  type: "view",
+  schema: "staging",
+  description: "View to fetch UNIT of Measure Conversion Factors"
+}
+
+SELECT 
+  mtrl.MATERIAL_NUMBER,
+  mtrl.PRODUCT_GROUP_NAME,
+  conv.to_base_uom_conv_factor AS TO_BASE_UNIT_OF_MEASURE_CONVERSION_FACTOR,
+  conv.alt_uom_cd AS ALTERNATE_UNIT_OF_MEASURE_CODE,
+  conv.base_uom_cd AS BASE_UNIT_OF_MEASURE_CODE,
+  
+FROM
+  ${ref("Material_UOM_Conv")} conv
+INNER JOIN
+  ${ref("stg_material_list")} mtrl
+ON
+  conv.mtrl_nbr = mtrl.MATERIAL_NUMBER

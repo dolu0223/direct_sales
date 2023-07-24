@@ -1,0 +1,30 @@
+config {
+  type: "view",
+  schema: "staging",
+  description: "View to fetch Material List",
+   columns: {
+    MATERIAL_NUMBER: "material number",
+    BUSINESS_GROUP_NAME: "business group name",
+    LINE_OF_BUSINESS_NAME: "line of business name",
+    PRODUCT_GROUP_NAME: "product group name",
+    PRODUCT_BRAND_NAME: "product brand name",
+    PRODUCT_NAME: "product name",
+    SPECIES_CODE: "species code", 
+    DIVISION_NAME: "division name",
+    BASE_UNIT_OF_MEASURE_CODE: "base unit of measure code"
+  }
+}
+SELECT 
+  material_number AS MATERIAL_NUMBER,
+  attributes.business_group AS BUSINESS_GROUP_NAME,
+  attributes.line_of_business AS LINE_OF_BUSINESS_NAME,
+  general_data.product_group AS PRODUCT_GROUP_NAME,
+  attributes.brand_name AS PRODUCT_BRAND_NAME,
+  attributes.product_name AS PRODUCT_NAME,
+  attributes.crop_code AS SPECIES_CODE,
+  general_data.division AS DIVISION_NAME,
+  general_data.base_unit_of_measure AS BASE_UNIT_OF_MEASURE_CODE
+FROM 
+  ${ref("MaterialsV2")}
+WHERE 
+  general_data.division = '15'

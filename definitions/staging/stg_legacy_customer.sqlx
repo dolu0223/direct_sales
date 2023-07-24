@@ -1,0 +1,19 @@
+config {
+  type: "view",
+  schema: "staging",
+  description: "View to fetch Legacy Customer Data"
+}
+
+SELECT 
+  -- SOD.LEGACY_CUSTOMER_NUMBER,
+  BL.billng_doc_nbr as BILLING_DOCUMENT_NUMBER
+FROM 
+  ${ref('stg_sls_ord_dtl_emea')} SOD
+INNER JOIN 
+  ${ref('billing_line')} AS BL
+ON 
+  SOD.ORDER_NUMBER = BL.sls_ord_nbr  
+  AND SOD.ORDER_ITEM_NUMBER = BL.sls_ord_line_nbr  
+GROUP BY 
+  -- SOD.LEGACY_CUSTOMER_NUMBER,
+  BL.billng_doc_nbr
