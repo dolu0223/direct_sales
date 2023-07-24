@@ -1,0 +1,28 @@
+config {
+  type: "table",
+  schema: "staging",
+  description: "SEASON_ROW_CROP"
+}
+
+SELECT c.SOURCE_SYSTEM_CODE
+  , c.CLIENT_NUMBER
+  , ss.COUNTRY_CODE
+  , ss.SEASON_NAME
+  , ss.SEASON_TYPE
+  , ss.SEASON_CODE
+  , ss.CROP_YEAR
+  , ss.CROP_CODE
+  , c.CROP_DESCRIPTION
+  , ss.ALTERNATE_SEASON_NAME
+  , ss.SEASON_START_DATE
+  , ss.SEASON_END_DATE
+  , ss.ACTION_TYPE
+  , ss.ROW_INSERT_TIMESTAMP
+  , GREATEST(ss.ROW_UPDATE_TIMESTAMP , c.ROW_UPDATE_TIMESTAMP) AS ROW_UPDATE_TIMESTAMP
+FROM `bcs-customer360-dev.h2r_stage.SEASON_ROW_CROP` ss
+LEFT JOIN `bcs-customer360-dev.h2r_stage.CROP` c
+ON ss.CROP_CODE = c.CROP_CODE
+AND c.CLIENT_NUMBER = 430
+AND c.ACTION_TYPE <> 'D'
+WHERE ss.COUNTRY_CODE = 'GB'
+--AND ss.ACTION_TYPE <> 'D'" --gap to be addressed
