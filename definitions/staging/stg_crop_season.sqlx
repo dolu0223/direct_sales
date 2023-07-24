@@ -19,8 +19,10 @@ SELECT c.SOURCE_SYSTEM_CODE
   , ss.ACTION_TYPE
   , ss.ROW_INSERT_TIMESTAMP
   , GREATEST(ss.ROW_UPDATE_TIMESTAMP , c.ROW_UPDATE_TIMESTAMP) AS ROW_UPDATE_TIMESTAMP
-FROM ${ref('season_row_crop')} ss
-LEFT JOIN ${ref('crop')} c
+-- FROM `bcs-customer360-dev.h2r_stage.SEASON_ROW_CROP` ss
+-- LEFT JOIN `bcs-customer360-dev.h2r_stage.CROP`c
+FROM ${ref('SEASON_ROW_CROP')} ss
+LEFT JOIN ${ref('CROP')} c
 ON ss.CROP_CODE = c.CROP_CODE
 AND c.CLIENT_NUMBER = 430
 AND c.ACTION_TYPE <> 'D'
