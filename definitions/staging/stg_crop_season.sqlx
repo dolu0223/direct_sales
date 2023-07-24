@@ -1,7 +1,7 @@
 config {
   type: "table",
   schema: "staging",
-  description: "SEASON_ROW_CROP"
+  description: "stg_crop_season"
 }
 
 SELECT c.SOURCE_SYSTEM_CODE
@@ -19,8 +19,8 @@ SELECT c.SOURCE_SYSTEM_CODE
   , ss.ACTION_TYPE
   , ss.ROW_INSERT_TIMESTAMP
   , GREATEST(ss.ROW_UPDATE_TIMESTAMP , c.ROW_UPDATE_TIMESTAMP) AS ROW_UPDATE_TIMESTAMP
-FROM `bcs-customer360-dev.h2r_stage.SEASON_ROW_CROP` ss
-LEFT JOIN `bcs-customer360-dev.h2r_stage.CROP` c
+FROM ${ref('season_row_crop')} ss
+LEFT JOIN ${ref('crop')} c
 ON ss.CROP_CODE = c.CROP_CODE
 AND c.CLIENT_NUMBER = 430
 AND c.ACTION_TYPE <> 'D'
