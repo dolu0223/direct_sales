@@ -1,0 +1,7 @@
+config {
+  type: "declaration",
+  database: "bcs-customer360-dev",
+  schema: "staging_eu_west1",
+  name: "exchange_rate_cal",
+  description: "raw exchange_rate_cal table"
+}
