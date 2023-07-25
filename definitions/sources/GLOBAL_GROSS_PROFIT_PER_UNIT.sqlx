@@ -1,0 +1,7 @@
+config {
+  type: "declaration",
+  database: "bcs-customer360-dev",
+  schema: "h2r_stage",
+  name: "GLOBAL_GROSS_PROFIT_PER_UNIT",
+  description: "raw GLOBAL_GROSS_PROFIT_PER_UNIT table"
+}
