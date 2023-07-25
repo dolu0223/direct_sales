@@ -1,7 +1,0 @@
-config {
-  type: "declaration",
-  database: "bcs-customer360-dev",
-  schema: "h2r_stage",
-  name: "SEASON_ROW_CROP",
-  description: "raw SEASON_ROW_CROP table"
-}
