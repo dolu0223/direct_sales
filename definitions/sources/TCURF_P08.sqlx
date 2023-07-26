@@ -1,7 +1,0 @@
-config {
-  type: "declaration",
-  database: "bcs-customer360-dev",
-  schema: "h2r_stage",
-  name: "TCURF_P08",
-  description: "raw TCURF_P08 table"
-}
